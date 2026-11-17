@@ -1,0 +1,13 @@
+{
+  "avaliacoes": [
+    {
+      "id": "1",
+      "cidadeId": 4119905,
+      "cidade": "Ponta Grossa",
+      "estado": "PR",
+      "autor": "João",
+      "nota": 4,
+      "comentario": "Cidade tranquila, mas o transporte público poderia melhorar."
+    }
+  ]
+}
