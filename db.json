@@ -1,13 +1,17 @@
 {
-  "avaliacoes": [
-    {
-      "id": "1",
-      "cidadeId": 4119905,
-      "cidade": "Ponta Grossa",
-      "estado": "PR",
-      "autor": "João",
-      "nota": 4,
-      "comentario": "Cidade tranquila, mas o transporte público poderia melhorar."
-    }
-  ]
+  "id": "1",
+  "cidadeId": 4119905,
+  "cidade": "Ponta Grossa",
+  "estado": "PR",
+  "autor": "João",
+  "notas": {
+    "seguranca": 4,
+    "transporte": 3,
+    "saude": 5,
+    "educacao": 4,
+    "lazer": 5,
+    "infraestrutura": 4
+  },
+  "comentario": "Cidade tranquila.",
+  "data": "2026-11-20"
 }

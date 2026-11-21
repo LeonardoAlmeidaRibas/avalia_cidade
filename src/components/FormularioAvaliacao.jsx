@@ -1,95 +1,88 @@
-import { useState } from "react";
-import { cadastrarAvaliacao } from "../services/avaliacoesService";
+import { useState } from 'react'
+import { cadastrarAvaliacao } from '../services/avaliacoesService'
+
+const criterios = [
+  { id: 'seguranca', nome: 'Segurança', descricao: 'Sensação de segurança no dia a dia' },
+  { id: 'transporte', nome: 'Transporte', descricao: 'Mobilidade e transporte público' },
+  { id: 'saude', nome: 'Saúde', descricao: 'Acesso a serviços de saúde' },
+  { id: 'educacao', nome: 'Educação', descricao: 'Escolas e oportunidades de ensino' },
+  { id: 'lazer', nome: 'Lazer', descricao: 'Parques, cultura e atividades' },
+  { id: 'infraestrutura', nome: 'Infraestrutura', descricao: 'Limpeza, ruas e serviços urbanos' },
+]
 
 function FormularioAvaliacao({ cidade, onCadastrado }) {
-  const [autor, setAutor] = useState("");
-  const [nota, setNota] = useState(5);
-  const [comentario, setComentario] = useState("");
-  const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState("");
+  const [autor, setAutor] = useState('')
+  const [notas, setNotas] = useState(Object.fromEntries(criterios.map((criterio) => [criterio.id, 5])))
+  const [comentario, setComentario] = useState('')
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+  const [sucesso, setSucesso] = useState(false)
 
   async function handleSubmit(event) {
-    event.preventDefault();
+    event.preventDefault()
+    setErro('')
+    setSucesso(false)
+    if (!autor.trim() || !comentario.trim()) {
+      setErro('Preencha seu nome e conte um pouco sobre sua experiência.')
+      return
+    }
 
-    setErro("");
-    setSalvando(true);
-
+    setSalvando(true)
     const avaliacao = {
-      cidadeId: cidade.id,
+      cidadeId: String(cidade.id),
       cidade: cidade.nome,
       estado: cidade.estado,
       autor: autor.trim(),
-      nota: Number(nota),
+      notas,
+      nota: Number((Object.values(notas).reduce((soma, nota) => soma + Number(nota), 0) / criterios.length).toFixed(1)),
       comentario: comentario.trim(),
-    };
+      data: new Date().toISOString(),
+    }
 
     try {
-      await cadastrarAvaliacao(avaliacao);
-
-      setAutor("");
-      setNota(5);
-      setComentario("");
-
-      onCadastrado();
+      await cadastrarAvaliacao(avaliacao)
+      setAutor('')
+      setNotas(Object.fromEntries(criterios.map((criterio) => [criterio.id, 5])))
+      setComentario('')
+      setSucesso(true)
+      onCadastrado()
     } catch (error) {
-      setErro(error.message);
+      setErro(error.message)
     } finally {
-      setSalvando(false);
+      setSalvando(false)
     }
   }
 
   return (
-    <section className="painel">
-      <h2>Avaliar {cidade.nome}</h2>
-
+    <section className="painel formulario-painel">
+      <div className="painel-titulo"><span className="eyebrow">CONTRIBUA</span><h2>Avalie esta cidade</h2><p>Sua opinião pode ajudar quem está pensando em morar ou visitar.</p></div>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="autor">Seu nome</label>
-        <input
-          id="autor"
-          type="text"
-          value={autor}
-          onChange={(e) => setAutor(e.target.value)}
-          placeholder="Digite seu nome"
-          maxLength={80}
-          required
-        />
+        <label htmlFor="autor">Como podemos te chamar?</label>
+        <input id="autor" type="text" value={autor} onChange={(event) => setAutor(event.target.value)} placeholder="Seu nome" maxLength={80} required />
 
-        <label htmlFor="nota">Nota da cidade</label>
-        <select
-          id="nota"
-          value={nota}
-          onChange={(e) => setNota(Number(e.target.value))}
-        >
-          <option value={5}>5 estrelas - Excelente</option>
-          <option value={4}>4 estrelas - Muito boa</option>
-          <option value={3}>3 estrelas - Regular</option>
-          <option value={2}>2 estrelas - Ruim</option>
-          <option value={1}>1 estrela - Péssima</option>
-        </select>
+        <fieldset className="criterios-fieldset">
+          <legend>Como você avalia cada aspecto?</legend>
+          <p className="ajuda-form">1 = muito ruim · 5 = excelente</p>
+          {criterios.map((criterio) => (
+            <div className="criterio-linha" key={criterio.id}>
+              <div><strong>{criterio.nome}</strong><small>{criterio.descricao}</small></div>
+              <select aria-label={`Nota para ${criterio.nome}`} value={notas[criterio.id]} onChange={(event) => setNotas((atuais) => ({ ...atuais, [criterio.id]: Number(event.target.value) }))}>
+                {[5, 4, 3, 2, 1].map((nota) => <option key={nota} value={nota}>{nota} {nota === 1 ? 'estrela' : 'estrelas'}</option>)}
+              </select>
+            </div>
+          ))}
+        </fieldset>
 
-        <label htmlFor="comentario">Sua experiência</label>
-        <textarea
-          id="comentario"
-          rows="5"
-          value={comentario}
-          onChange={(e) => setComentario(e.target.value)}
-          placeholder="Conte como foi sua experiência nesta cidade..."
-          maxLength={2000}
-          required
-        />
+        <label htmlFor="comentario">Conte sua experiência</label>
+        <textarea id="comentario" rows="4" value={comentario} onChange={(event) => setComentario(event.target.value)} placeholder="O que você gosta na cidade? O que poderia melhorar?" maxLength={2000} required />
+        <div className="contador-caracteres">{comentario.length}/2000</div>
 
-        {erro && <p className="erro">{erro}</p>}
-
-        <button
-          type="submit"
-          className="botao-principal"
-          disabled={salvando}
-        >
-          {salvando ? "Publicando..." : "Publicar avaliação"}
-        </button>
+        {erro && <p className="mensagem-erro" role="alert">{erro}</p>}
+        {sucesso && <p className="mensagem-sucesso" role="status">Avaliação publicada! Obrigado por contribuir.</p>}
+        <button type="submit" className="botao-principal" disabled={salvando}>{salvando ? 'Publicando...' : 'Publicar avaliação'}</button>
       </form>
     </section>
-  );
+  )
 }
 
-export default FormularioAvaliacao;
+export default FormularioAvaliacao

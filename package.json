@@ -1,10 +1,11 @@
 {
   "name": "avalia-cidades",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "json-server db.json --port 3001",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

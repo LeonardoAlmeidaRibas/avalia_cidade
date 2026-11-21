@@ -1,121 +1,170 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
+import FormularioAvaliacao from './components/FormularioAvaliacao'
+import ListaAvaliacoes from './components/ListaAvaliacoes'
+import PesquisaCidade from './components/PesquisaCidade'
+import { listarAvaliacoes } from './services/avaliacoesService'
+import { buscarCidades } from './services/cidadesService'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [cidades, setCidades] = useState([])
+  const [cidadeSelecionada, setCidadeSelecionada] = useState(null)
+  const [avaliacoes, setAvaliacoes] = useState([])
+  const [carregandoCidades, setCarregandoCidades] = useState(true)
+  const [carregandoAvaliacoes, setCarregandoAvaliacoes] = useState(false)
+  const [erroCidades, setErroCidades] = useState('')
+  const [erroAvaliacoes, setErroAvaliacoes] = useState('')
+  const [atualizacao, setAtualizacao] = useState(0)
+
+  useEffect(() => {
+    let ativo = true
+
+    async function carregarCidades() {
+      try {
+        const dados = await buscarCidades()
+        if (ativo) setCidades(dados)
+      } catch (error) {
+        if (ativo) setErroCidades(error.message)
+      } finally {
+        if (ativo) setCarregandoCidades(false)
+      }
+    }
+
+    carregarCidades()
+    return () => { ativo = false }
+  }, [])
+
+  useEffect(() => {
+    let ativo = true
+
+    async function carregarAvaliacoes() {
+      if (!cidadeSelecionada) return
+      try {
+        const dados = await listarAvaliacoes(cidadeSelecionada.id)
+        if (ativo) setAvaliacoes(dados)
+      } catch (error) {
+        if (ativo) {
+          setErroAvaliacoes(error.message)
+          setAvaliacoes([])
+        }
+      } finally {
+        if (ativo) setCarregandoAvaliacoes(false)
+      }
+    }
+
+    carregarAvaliacoes()
+    return () => { ativo = false }
+  }, [cidadeSelecionada, atualizacao])
+
+  const mediaGeral = useMemo(() => {
+    if (!avaliacoes.length) return null
+    const notas = avaliacoes.map((avaliacao) => {
+      if (avaliacao.notas) {
+        const valores = Object.values(avaliacao.notas).map(Number)
+        return valores.length ? valores.reduce((soma, nota) => soma + nota, 0) / valores.length : Number(avaliacao.nota) || 0
+      }
+      return Number(avaliacao.nota)
+    })
+    return notas.reduce((soma, nota) => soma + nota, 0) / notas.length
+  }, [avaliacoes])
+
+  function selecionarCidade(cidade) {
+    if (cidadeSelecionada?.id === cidade.id) return
+    setCidadeSelecionada(cidade)
+    setAvaliacoes([])
+    setErroAvaliacoes('')
+    setCarregandoAvaliacoes(true)
+  }
+
+  function recarregarAvaliacoes() {
+    setErroAvaliacoes('')
+    setCarregandoAvaliacoes(true)
+    setAtualizacao((valor) => valor + 1)
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-shell">
+      <header className="topbar">
+        <a className="marca" href="#inicio" aria-label="AvaliaCidades - início">
+          <span className="marca-icone">A</span>
+          <span>Avalia<span className="marca-destaque">Cidades</span></span>
+        </a>
+        <a className="link-sobre" href="#sobre">Sobre o projeto</a>
+      </header>
 
-      <div className="ticks"></div>
+      <main id="inicio">
+        <section className="hero-section">
+          <div className="hero-conteudo">
+            <span className="eyebrow">SUA EXPERIÊNCIA FAZ A DIFERENÇA</span>
+            <h1>Conheça cidades.<br /><span>Avalie experiências.</span></h1>
+            <p>Descubra o que as pessoas pensam sobre os municípios brasileiros e compartilhe sua visão sobre a cidade.</p>
+            <a className="hero-cta" href="#buscar">Explorar cidades <span aria-hidden="true">↓</span></a>
+          </div>
+          <div className="hero-ilustracao" aria-hidden="true">
+            <div className="sol" />
+            <div className="predio predio-um" /><div className="predio predio-dois" />
+            <div className="predio predio-tres" /><div className="predio predio-quatro" />
+            <div className="arvore arvore-um" /><div className="arvore arvore-dois" />
+            <div className="chao" />
+            <div className="cartao-flutuante"><span>★</span><strong>5.0</strong><small>Voz da comunidade</small></div>
+          </div>
+        </section>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <section className="conteudo-principal" id="buscar">
+          <div className="secao-intro">
+            <span className="eyebrow">COMECE POR AQUI</span>
+            <h2>Qual cidade você quer conhecer?</h2>
+            <p>Pesquise pelo nome do município ou pela sigla do estado.</p>
+          </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          {carregandoCidades && <div className="aviso"><span className="spinner" /> Carregando municípios do IBGE...</div>}
+          {erroCidades && <div className="mensagem-erro" role="alert">{erroCidades} <button type="button" onClick={() => window.location.reload()}>Tentar novamente</button></div>}
+          {!carregandoCidades && !erroCidades && (
+            <PesquisaCidade cidades={cidades} onSelecionar={selecionarCidade} cidadeSelecionada={cidadeSelecionada} />
+          )}
+
+          {cidadeSelecionada ? (
+            <>
+              <section className="cidade-cabecalho">
+                <div>
+                  <span className="eyebrow">VOCÊ ESTÁ EXPLORANDO</span>
+                  <h2>{cidadeSelecionada.nome}<span className="uf-tag">{cidadeSelecionada.estado}</span></h2>
+                  <p>Compartilhe sua experiência e ajude outras pessoas a conhecer melhor o município.</p>
+                </div>
+                <div className="cidade-nota">
+                  <span className="nota-estrela">★</span>
+                  <strong>{mediaGeral === null ? '—' : mediaGeral.toFixed(1)}</strong>
+                  <small>{avaliacoes.length} {avaliacoes.length === 1 ? 'avaliação' : 'avaliações'}</small>
+                </div>
+              </section>
+
+              {erroAvaliacoes && <div className="mensagem-erro" role="alert">{erroAvaliacoes}<button type="button" onClick={recarregarAvaliacoes}>Tentar novamente</button></div>}
+              <div className="colunas">
+                <div className="coluna-lista">
+                  {carregandoAvaliacoes ? <div className="aviso"><span className="spinner" /> Carregando avaliações...</div> : <ListaAvaliacoes avaliacoes={avaliacoes} />}
+                </div>
+                <div className="coluna-formulario">
+                  <FormularioAvaliacao cidade={cidadeSelecionada} onCadastrado={recarregarAvaliacoes} />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="estado-inicial">
+              <div className="estado-icone">⌖</div>
+              <h3>Uma cidade de cada vez</h3>
+              <p>Escolha um município na busca para visualizar as avaliações e registrar a sua.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="sobre-section" id="sobre">
+          <div><span className="eyebrow">SOBRE O AVALIACIDADES</span><h2>Uma cidade é feita de muitas experiências.</h2></div>
+          <p>O AvaliaCidades é um projeto acadêmico que reúne opiniões de pessoas sobre municípios brasileiros. As cidades são consultadas na API de Localidades do IBGE e as avaliações são armazenadas em uma API REST.</p>
+        </section>
+      </main>
+
+      <footer><span>© {new Date().getFullYear()} AvaliaCidades</span><span>Feito para compartilhar experiências.</span></footer>
+    </div>
   )
 }
 
