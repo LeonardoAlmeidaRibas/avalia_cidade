@@ -48,3 +48,172 @@
 footer { max-width: 1080px; width: calc(100% - 56px); margin: 0 auto; padding: 22px 0 28px; display: flex; justify-content: space-between; color: #9aa59d; font-size: 10px; }
 @media (max-width: 760px) { .topbar { height: 66px; padding: 0 20px; }.hero-section { min-height: 440px; margin: 0 12px; padding: 35px 24px; align-items: flex-start; }.hero-conteudo { width: 100%; }.hero-section h1 { font-size: 42px; }.hero-section p { max-width: 390px; }.hero-ilustracao { width: 100%; height: 190px; opacity: .8; }.sol { top: 5px; right: 90px; width: 75px; height: 75px; }.predio { bottom: 22px; }.predio-um { right: 220px; height: 100px; }.predio-dois { right: 125px; height: 145px; }.predio-tres { right: 50px; height: 95px; }.predio-quatro { right: -10px; height: 75px; }.arvore { bottom: 25px; }.arvore-um { right: 275px; }.cartao-flutuante { top: 0; right: 15px; transform: scale(.85); transform-origin: top right; }.chao { bottom: -100px; }.conteudo-principal { padding: 58px 20px 65px; }.secao-intro h2 { font-size: 24px; }.cidade-cabecalho { margin-top: 35px; padding: 19px; }.cidade-cabecalho h2 { font-size: 23px; }.colunas { grid-template-columns: 1fr; }.sobre-section { margin: 0 20px 40px; padding: 28px 0; grid-template-columns: 1fr; gap: 12px; }.sobre-section h2 { font-size: 22px; }footer { width: calc(100% - 40px); gap: 15px; flex-wrap: wrap; } }
 @media (max-width: 420px) { .hero-section h1 { font-size: 36px; }.cidade-cabecalho { align-items: flex-start; }.cidade-nota { min-width: 68px; }.cidade-cabecalho p { max-width: 230px; line-height: 1.5; }.painel { padding: 18px; }.resumo-avaliacoes { grid-template-columns: 1fr; }.media-grande { padding-bottom: 12px; border-right: 0; border-bottom: 1px solid #dfe9e0; }.medias-criterios { grid-template-columns: 1fr 1fr; }.criterio-linha select { width: 94px; } }
+
+.acoes-conta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.botao-conta {
+  padding: 9px 14px;
+  border: 1px solid #dce7df;
+  border-radius: 8px;
+  background: white;
+  color: #287953;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.botao-conta-destaque {
+  background: #287953;
+  color: white;
+}
+
+.usuario-logado {
+  color: #53665e;
+  font-size: 12px;
+}
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(20, 40, 30, 0.55);
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 20px 60px #0003;
+}
+
+.auth-card h2 {
+  margin: 10px 0;
+  color: #244333;
+  font-size: 25px;
+}
+
+.auth-card > p {
+  color: #849087;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.auth-fechar {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  border: 0;
+  background: transparent;
+  color: #718278;
+  font-size: 27px;
+  cursor: pointer;
+}
+
+.auth-abas {
+  display: flex;
+  gap: 8px;
+  margin: 22px 0;
+  border-bottom: 1px solid #e7ede8;
+}
+
+.auth-abas button {
+  padding: 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #849087;
+  cursor: pointer;
+}
+
+.auth-abas button.ativa {
+  border-color: #287953;
+  color: #287953;
+  font-weight: 700;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-card label {
+  color: #43594c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-card input {
+  padding: 12px;
+  border: 1px solid #dfe8e1;
+  border-radius: 8px;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+}
+
+.auth-card input:focus {
+  border-color: #65a77d;
+}
+
+.auth-link {
+  width: 100%;
+  margin-top: 12px;
+  border: 0;
+  background: transparent;
+  color: #287953;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .acoes-conta {
+    gap: 6px;
+  }
+
+  .acoes-conta .link-sobre {
+    display: none;
+  }
+
+  .usuario-logado {
+    display: none;
+  }
+
+  .auth-card {
+    padding: 24px;
+  }
+}
+
+.usuario-conectado {
+  margin-top: 14px !important;
+  padding: 11px 13px;
+  border-radius: 8px;
+  background: #f0f6f1;
+  color: #607469 !important;
+  font-size: 12px !important;
+}
+
+.usuario-conectado strong {
+  color: #287953;
+}
+
+.usuario-logado {
+  color: #607469;
+  font-size: 12px;
+}
+
+.usuario-logado strong {
+  color: #287953;
+}

@@ -1,42 +1,59 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/avaliacoes'
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:3001/api/avaliacoes";
 
-async function tratarResposta(resposta, mensagem) {
+async function tratarResposta(resposta) {
+  const corpo = await resposta.json();
+
   if (!resposta.ok) {
-    let detalhe = ''
-    try {
-      const corpo = await resposta.json()
-      detalhe = corpo.message || corpo.error || ''
-    } catch {
-      // A resposta pode não conter JSON.
-    }
-    throw new Error(detalhe || `${mensagem} (HTTP ${resposta.status}).`)
+    throw new Error(
+      corpo.message || `Erro HTTP ${resposta.status}.`
+    );
   }
-  return resposta.json()
+
+  return corpo;
 }
 
 export async function listarAvaliacoes(cidadeId) {
-  const url = new URL(API_URL, window.location.origin)
-  if (cidadeId !== undefined && cidadeId !== null) url.searchParams.set('cidadeId', String(cidadeId))
+  const url = new URL(API_URL);
 
-  let resposta
-  try {
-    resposta = await fetch(url)
-  } catch {
-    throw new Error('Não foi possível conectar à API de avaliações. Verifique se o JSON Server está iniciado na porta 3001.')
+  if (cidadeId) {
+    url.searchParams.set("cidadeId", String(cidadeId));
   }
-  return tratarResposta(resposta, 'Erro ao carregar avaliações')
+
+  try {
+    const resposta = await fetch(url);
+    return await tratarResposta(resposta);
+  } catch (erro) {
+    if (erro instanceof TypeError) {
+      throw new Error("Não foi possível conectar ao servidor.");
+    }
+
+    throw erro;
+  }
 }
 
-export async function cadastrarAvaliacao(avaliacao) {
-  let resposta
-  try {
-    resposta = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(avaliacao),
-    })
-  } catch {
-    throw new Error('Não foi possível conectar à API. Verifique se o JSON Server está iniciado na porta 3001.')
+export async function cadastrarAvaliacao(avaliacao, token) {
+  if (!token) {
+    throw new Error("Você precisa fazer login para avaliar.");
   }
-  return tratarResposta(resposta, 'Erro ao cadastrar avaliação')
+
+  try {
+    const resposta = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(avaliacao),
+    });
+
+    return await tratarResposta(resposta);
+  } catch (erro) {
+    if (erro instanceof TypeError) {
+      throw new Error("Não foi possível conectar ao servidor.");
+    }
+
+    throw erro;
+  }
 }

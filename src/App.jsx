@@ -5,6 +5,13 @@ import ListaAvaliacoes from './components/ListaAvaliacoes'
 import PesquisaCidade from './components/PesquisaCidade'
 import { listarAvaliacoes } from './services/avaliacoesService'
 import { buscarCidades } from './services/cidadesService'
+import Autenticacao from "./components/Autenticacao";
+import {
+  obterSessao,
+  salvarSessao,
+  removerSessao,
+} from "./services/authService";
+
 
 function App() {
   const [cidades, setCidades] = useState([])
@@ -15,6 +22,9 @@ function App() {
   const [erroCidades, setErroCidades] = useState('')
   const [erroAvaliacoes, setErroAvaliacoes] = useState('')
   const [atualizacao, setAtualizacao] = useState(0)
+  const [sessao, setSessao] = useState(() => obterSessao());
+  const [authAberta, setAuthAberta] = useState(false);
+  const [modoAuth, setModoAuth] = useState("login");
 
   useEffect(() => {
     let ativo = true
@@ -82,6 +92,22 @@ function App() {
     setAtualizacao((valor) => valor + 1)
   }
 
+  function abrirAutenticacao(modo) {
+    setModoAuth(modo);
+    setAuthAberta(true);
+  }
+
+  function handleAutenticado(dados) {
+    const novaSessao = salvarSessao(dados);
+    setSessao(novaSessao);
+    setAuthAberta(false);
+  }
+
+  function handleLogout() {
+    removerSessao();
+    setSessao(null);
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -89,7 +115,42 @@ function App() {
           <span className="marca-icone">A</span>
           <span>Avalia<span className="marca-destaque">Cidades</span></span>
         </a>
-        <a className="link-sobre" href="#sobre">Sobre o projeto</a>
+        <div className="acoes-conta">
+          <a className="link-sobre" href="#sobre">
+            Sobre o projeto
+          </a>
+
+          {sessao ? (
+            <>
+              <span className="usuario-logado">
+                Olá, <strong>{sessao.usuario.nickname}</strong>
+              </span>
+
+              <button
+                className="botao-conta"
+                onClick={handleLogout}
+              >
+                Sair
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="botao-conta"
+                onClick={() => abrirAutenticacao("login")}
+              >
+                Entrar
+              </button>
+
+              <button
+                className="botao-conta botao-conta-destaque"
+                onClick={() => abrirAutenticacao("cadastro")}
+              >
+                Criar conta
+              </button>
+            </>
+          )}
+        </div>
       </header>
 
       <main id="inicio">
@@ -144,7 +205,29 @@ function App() {
                   {carregandoAvaliacoes ? <div className="aviso"><span className="spinner" /> Carregando avaliações...</div> : <ListaAvaliacoes avaliacoes={avaliacoes} />}
                 </div>
                 <div className="coluna-formulario">
-                  <FormularioAvaliacao cidade={cidadeSelecionada} onCadastrado={recarregarAvaliacoes} />
+                  {sessao ? (
+                    <FormularioAvaliacao
+                      cidade={cidadeSelecionada}
+                      onCadastrado={recarregarAvaliacoes}
+                      usuario={sessao.usuario}
+                      token={sessao.token}
+                    />
+                  ) : (
+                    <section className="painel formulario-painel">
+                      <div className="painel-titulo">
+                        <span className="eyebrow">CONTRIBUA</span>
+                        <h2>Avalie esta cidade</h2>
+                        <p>Entre na sua conta para compartilhar sua experiência.</p>
+                      </div>
+
+                      <button
+                        className="botao-principal"
+                        onClick={() => abrirAutenticacao("login")}
+                      >
+                        Entrar para avaliar
+                      </button>
+                    </section>
+                  )}
                 </div>
               </div>
             </>
@@ -164,6 +247,13 @@ function App() {
       </main>
 
       <footer><span>© {new Date().getFullYear()} AvaliaCidades</span><span>Feito para compartilhar experiências.</span></footer>
+      {authAberta && (
+        <Autenticacao
+          modoInicial={modoAuth}
+          onFechar={() => setAuthAberta(false)}
+          onAutenticado={handleAutenticado}
+        />
+      )}
     </div>
   )
 }
