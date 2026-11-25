@@ -23,7 +23,7 @@ function PesquisaCidade({ cidades, onSelecionar, cidadeSelecionada }) {
       <div className="campo-busca">
         <span className="busca-icone" aria-hidden="true">⌕</span>
         <input
-          type="search"
+          type="text"
           aria-label="Pesquisar cidade ou estado"
           aria-expanded={aberto && Boolean(pesquisa.trim())}
           placeholder="Ex.: Ponta Grossa ou PR"
