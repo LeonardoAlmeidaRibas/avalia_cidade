@@ -1212,3 +1212,102 @@ footer {
 .usuario-logado strong {
   color: #287953;
 }
+
+/* ===== AVALIAÇÕES ===== */
+
+.avaliacao {
+  padding: 16px;
+  border: 1px solid #e7ede8;
+  border-radius: 12px;
+  background: #fff;
+  transition: box-shadow .2s, border-color .2s;
+}
+
+.avaliacao:hover {
+  border-color: #d7e6da;
+  box-shadow: 0 5px 16px #1e49320a;
+}
+
+.avaliacao-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nota-pill {
+  margin-left: auto;
+}
+
+.botao-excluir-avaliacao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid #f0d8d5;
+  border-radius: 7px;
+  background: #fff;
+  color: #b45c51;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s;
+}
+
+.botao-excluir-avaliacao:hover:not(:disabled) {
+  border-color: #dba8a1;
+  background: #fff1ef;
+  color: #a44135;
+}
+
+.botao-excluir-avaliacao:focus-visible {
+  outline: 3px solid #dba8a155;
+  outline-offset: 2px;
+}
+
+.botao-excluir-avaliacao:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.erro-exclusao {
+  margin-top: 12px;
+}
+
+.lista-avaliacoes {
+  gap: 12px;
+}
+
+.comentario-avaliacao {
+  margin-top: 13px;
+}
+
+.tags-notas {
+  margin-top: 12px;
+}
+
+/* ===== RESPONSIVIDADE DAS AVALIAÇÕES ===== */
+
+@media (max-width: 500px) {
+  .avaliacao {
+    padding: 13px;
+  }
+
+  .avaliacao-topo {
+    gap: 7px;
+  }
+
+  .nota-pill {
+    margin-left: auto;
+  }
+
+  .botao-excluir-avaliacao {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+
+  .comentario-avaliacao {
+    font-size: 12px;
+  }
+}

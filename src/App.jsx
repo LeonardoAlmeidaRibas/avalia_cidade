@@ -202,7 +202,23 @@ function App() {
               {erroAvaliacoes && <div className="mensagem-erro" role="alert">{erroAvaliacoes}<button type="button" onClick={recarregarAvaliacoes}>Tentar novamente</button></div>}
               <div className="colunas">
                 <div className="coluna-lista">
-                  {carregandoAvaliacoes ? <div className="aviso"><span className="spinner" /> Carregando avaliações...</div> : <ListaAvaliacoes avaliacoes={avaliacoes} />}
+                  {carregandoAvaliacoes ? (
+                    <div className="aviso">
+                      <span className="spinner" /> Carregando avaliações...
+                    </div>
+                  ) : (
+                    <ListaAvaliacoes
+                      avaliacoes={avaliacoes}
+                      sessao={sessao}
+                      onExcluida={(id) => {
+                        setAvaliacoes((atuais) =>
+                          atuais.filter(
+                            (avaliacao) => Number(avaliacao.id) !== Number(id)
+                          )
+                        )
+                      }}
+                    />
+                  )}
                 </div>
                 <div className="coluna-formulario">
                   {sessao ? (

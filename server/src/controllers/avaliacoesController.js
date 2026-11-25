@@ -21,6 +21,7 @@ export async function listarAvaliacoes(req, res) {
         a.cidade_id AS "cidadeId",
         a.cidade,
         a.estado,
+        a.usuario_id AS "usuarioId",
         u.nickname AS autor,
         a.notas,
         a.nota,
@@ -147,6 +148,41 @@ export async function cadastrarAvaliacao(req, res) {
 
     res.status(500).json({
       message: "Erro ao publicar avaliação.",
+    });
+  }
+}
+
+export async function excluirAvaliacao(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        message: "Identificador de avaliação inválido.",
+      });
+    }
+
+    const resultado = await pool.query(
+      `DELETE FROM avaliacoes
+       WHERE id = $1 AND usuario_id = $2
+       RETURNING id`,
+      [id, req.usuario.id]
+    );
+
+    if (resultado.rowCount === 0) {
+      return res.status(404).json({
+        message: "Avaliação não encontrada ou você não tem permissão para excluí-la.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Avaliação excluída com sucesso.",
+    });
+  } catch (erro) {
+    console.error(erro);
+
+    res.status(500).json({
+      message: "Erro ao excluir avaliação.",
     });
   }
 }

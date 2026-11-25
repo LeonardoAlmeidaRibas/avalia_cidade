@@ -57,3 +57,29 @@ export async function cadastrarAvaliacao(avaliacao, token) {
     throw erro;
   }
 }
+
+export async function excluirAvaliacao(id, token) {
+  if (!token) {
+    throw new Error("Você precisa fazer login para excluir uma avaliação.");
+  }
+
+  try {
+    const resposta = await fetch(
+      `${API_URL.replace(/\/$/, "")}/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return await tratarResposta(resposta);
+  } catch (erro) {
+    if (erro instanceof TypeError) {
+      throw new Error("Não foi possível conectar ao servidor.");
+    }
+
+    throw erro;
+  }
+}
