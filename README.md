@@ -57,6 +57,50 @@ O token é um JWT retornado pelo cadastro e pelo login, com validade de 1 dia. E
 | GET    | `/api/avaliacoes`     | Não          | Lista avaliações (todas ou por cidade).     |
 | POST   | `/api/avaliacoes`     | **Sim**      | Publica uma avaliação.                      |
 
+### `DELETE /api/avaliacoes/:id` 🔒
+
+Exclui uma avaliação cadastrada pelo usuário autenticado. O sistema verifica se a avaliação existe e se pertence ao usuário que está realizando a solicitação.
+
+**Parâmetro da rota**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | Inteiro | Identificador da avaliação que será excluída. |
+
+**Cabeçalhos**
+
+```http
+Authorization: Bearer <token>
+```
+
+**Exemplo de requisição**
+
+```http
+DELETE /api/avaliacoes/2
+```
+
+**Regras de validação**
+
+- `id`: deve ser um número inteiro positivo.
+- É obrigatório estar autenticado por meio de um token JWT válido.
+- O usuário só pode excluir avaliações cadastradas por ele.
+- Caso a avaliação não exista ou pertença a outro usuário, a exclusão não será realizada.
+
+**Resposta `200 OK`**
+
+```json
+{
+  "message": "Avaliação excluída com sucesso."
+}
+```
+
+**Erros:**
+
+- `400`: identificador de avaliação inválido.
+- `401`: usuário não autenticado, token inválido ou expirado.
+- `404`: avaliação não encontrada ou usuário sem permissão para excluí-la.
+- `500`: erro interno ao excluir a avaliação.
+
 ---
 
 ### `POST /api/auth/cadastro`
@@ -364,11 +408,13 @@ VITE_API_URL=http://localhost:3001/api/avaliacoes
 - Rotas de escrita protegidas por JWT com expiração de 1 dia.
 - Consultas SQL parametrizadas, evitando SQL injection.
 - O arquivo `.env` não deve ser versionado.
+- Exclusão de avaliações restrita ao usuário que realizou o cadastro, com validação no servidor.
 
 ## Limitações e próximos passos
 
 - O CORS está liberado para qualquer origem; em produção, restrinja ao domínio do front-end.
-- Não há limite de tentativas de login, edição ou exclusão de avaliações, nem moderação de comentários.
+- Não há limite de tentativas de login, nem moderação de comentários.
+- Ainda não existe funcionalidade de edição de avaliações.
 - O token fica salvo no `localStorage` do navegador.
 
 ## Objetivo acadêmico
